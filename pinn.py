@@ -25,21 +25,21 @@ class Net(nn.Module):
         return self.layers_stack(x)
 
 
-def pde(outt, xx):
-    y = outt[:, 0].unsqueeze(1)
-    dydx = torch.autograd.grad(y, xx, torch.ones_like(xx), create_graph=True, retain_graph=True)[0]
-    d2ydx2 = torch.autograd.grad(dydx, xx, torch.ones_like(xx), create_graph=True, retain_graph=True)[0]
+def pde(out, x):
+    y = out[:, 0].unsqueeze(1)
+    dydx = torch.autograd.grad(y, x, torch.ones_like(x), create_graph=True, retain_graph=True)[0]
+    d2ydx2 = torch.autograd.grad(dydx, x, torch.ones_like(x), create_graph=True, retain_graph=True)[0]
     
-    return d2ydx2 - xx * y
+    return d2ydx2 - x * y
 
 
-def pdeloss(xx, lmbd=1):
-    outt = the_net(xx)
-    f = pde(outt, xx)
+def pdeloss(x, lmbd=1):
+    out = the_net(x)
+    f = pde(out, x)
 
     loss_pde = mse(f, torch.zeros_like(f))
 
-    loss_bc = mse(outt[500], torch.Tensor([y0, dydx0]))
+    loss_bc = mse(out[500], torch.Tensor([y0, dydx0]))
 
     return loss_pde + lmbd * loss_bc
 
