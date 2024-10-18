@@ -44,9 +44,6 @@ def pdeloss(x, lmbd=1):
     return loss_pde + lmbd * loss_bc
 
 
-
-
-
 def train(ep):
     pbar = tqdm(range(ep), desc='Training Progress')
     for i in pbar:
@@ -55,12 +52,23 @@ def train(ep):
         loss_arr[i] = loss.item()
         loss.backward()
         optimizer.step()
+        
+        # Уменьшаем lr каждые 800 epoch с коэфициэнтом gamma=0.8
+        scheduler.gamma = 0.9
+
+        scheduler.step()
+
+        # Отображение текущего lr
+        current_lr = scheduler.get_last_lr()[0]
+        pbar.set_postfix({'Loss': loss.item(), 'LR': current_lr})
 
 
 def plot_loss(loss):
     plt.title('Loss Decreasing')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
+    plt.xscale('log')
+    plt.yscale('log')
     plt.plot(loss)
     plt.show()
 
@@ -98,6 +106,9 @@ if train_switch:
     lr = 0.01
     optimizer = torch.optim.Adam(the_net.parameters(), lr=lr)
 
+    # Инициализация sheduler уменьшения lr
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=800, gamma=0.9)
+
     epochs = 8000
     loss_arr = np.zeros(epochs)
 
@@ -122,4 +133,3 @@ else:
     plt.legend()
     plt.grid()
     plt.show()
-
