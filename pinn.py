@@ -54,7 +54,7 @@ def train(ep):
         optimizer.step()
         
         # Уменьшаем lr каждые 800 epoch с коэфициэнтом gamma=0.8
-        scheduler.gamma = 0.9
+        scheduler.gamma = 0.8
 
         scheduler.step()
 
